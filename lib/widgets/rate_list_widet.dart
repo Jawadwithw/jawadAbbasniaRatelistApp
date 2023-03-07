@@ -26,6 +26,8 @@ class _RateListWidgetState extends State<RateListWidget> {
     super.initState();
     RateListProvider rateListProvider =
         Provider.of<RateListProvider>(context, listen: false);
+
+    // after getting for the first time app starts, it starts a 2 minutes timer for refresh the list
     rateListProvider.getRates().then((value) {
       _timer = Timer.periodic(const Duration(minutes: 2), (timer) {
         rateListProvider.getRates();
@@ -40,6 +42,7 @@ class _RateListWidgetState extends State<RateListWidget> {
     _timer.cancel();
   }
 
+//here below gets the symbol and puts / after index 2 to seperate that to show
   String generateItemTitle(String src, String divider) {
     String newStr = '';
     int step = 3;
@@ -55,82 +58,86 @@ class _RateListWidgetState extends State<RateListWidget> {
     RateListProvider provider =
         Provider.of<RateListProvider>(context, listen: true);
 
-    return 
-    provider.getSuccess?
-    ListView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: provider.getLoading ? 7 : provider.getRateList.length,
-      itemBuilder: (context, index) {
-        late bool higherOrEql;
-        if (!provider.getLoading) {
-          double currentPrice =
-              (provider.getRateList[index] as RateModel).price;
+    return provider.getSuccess
+        ? ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: provider.getLoading ? 7 : provider.getRateList.length,
+            itemBuilder: (context, index) {
+              late bool higherOrEql;
+              if (!provider.getLoading) {
+                double currentPrice =
+                    (provider.getRateList[index] as RateModel).price;
 
-          double prePrice = provider.getPreRateList.isNotEmpty
-              ? provider.getPreRateList[index].price
-              : 0;
+                double prePrice = provider.getPreRateList.isNotEmpty
+                    ? provider.getPreRateList[index].price
+                    : 0;
 
-          higherOrEql = currentPrice > prePrice ||
-              currentPrice == prePrice ||
-              provider.getPreRateList.isEmpty;
-        }
+                higherOrEql = currentPrice > prePrice ||
+                    currentPrice == prePrice ||
+                    provider.getPreRateList.isEmpty;
+              }
 
-        return Container(
-            height: 70,
-            margin: EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: ConstColors.itemBackgroundColor),
-            child: provider.getLoading
-                ? const LoadingShimmer()
-                : Container(
-                    margin: const EdgeInsets.only(
-                        left: 16, right: 27, top: 13, bottom: 13),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Image.asset(
-                              "${ConstData.imageAssetPath}${(provider.getRateList[index] as RateModel).symbol}.png",
-                              height: 44,
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(left: 8),
-                              child: Text(
-                                generateItemTitle(
-                                    (provider.getRateList[index] as RateModel)
-                                        .symbol,
-                                    "/"),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+              return Container(
+                  height: 70,
+                  margin: EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: ConstColors.itemBackgroundColor),
+                  child: provider.getLoading
+                      ? const LoadingShimmer()
+                      : Container(
+                          margin: const EdgeInsets.only(
+                              left: 16, right: 27, top: 13, bottom: 13),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.asset(
+                                    "${ConstData.imageAssetPath}${(provider.getRateList[index] as RateModel).symbol}.png",
+                                    height: 44,
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      generateItemTitle(
+                                          (provider.getRateList[index]
+                                                  as RateModel)
+                                              .symbol,
+                                          "/"),
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              (provider.getRateList[index] as RateModel)
-                                  .price
-                                  .toStringAsFixed(4),
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color:
-                                      higherOrEql ? Colors.green : Colors.red,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            Icon(
-                              higherOrEql
-                                  ? Icons.arrow_upward_rounded
-                                  : Icons.arrow_downward_rounded,
-                              color: higherOrEql ? Colors.green : Colors.red,
-                            )
-                          ],
-                        ),
-                      ],
-                    )));
-      },
-    ):SadPathWidget();
+                              Row(
+                                children: [
+                                  Text(
+                                    (provider.getRateList[index] as RateModel)
+                                        .price
+                                        .toStringAsFixed(4),
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: higherOrEql
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  Icon(
+                                    higherOrEql
+                                        ? Icons.arrow_upward_rounded
+                                        : Icons.arrow_downward_rounded,
+                                    color:
+                                        higherOrEql ? Colors.green : Colors.red,
+                                  )
+                                ],
+                              ),
+                            ],
+                          )));
+            },
+          )
+        : SadPathWidget();
   }
 }

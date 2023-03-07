@@ -25,19 +25,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    //here below init the connectivity package and then subscribe to that
     initConnectivity();
-
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
   @override
   void dispose() {
+    //canceling the listen to connectivity for avoiding memory leak
     _connectivitySubscription.cancel();
     super.dispose();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initConnectivity() async {
     late ConnectivityResult result;
     // Platform messages may fail, so we use a try/catch PlatformException.
